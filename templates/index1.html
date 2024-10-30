@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Management System(LMS) - Empowering Education Through Seamless Learning Experiences</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&family=Open+Sans&display=swap">
+    <style>
+        /* General styles */
+        html, body {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Open Sans', sans-serif;
+            background-image: url("{{ url_for('static', filename='siva1.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            color: white;
+        }
+
+        /* User info display */
+        .user-info {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            color: #ffcc00;
+        }
+
+        /* Dropdown menu for profile */
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 35px;
+            right: 0;
+            background-color: white;
+            color: black;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .dropdown p {
+            margin: 0;
+            padding: 5px 0;
+            font-size: 1em;
+        }
+
+        .logout-button {
+            margin-top: 10px;
+            padding: 8px 12px;
+            font-size: 1em;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+        }
+
+        /* Header, main content, button, and courses section styles */
+        header, main {
+            text-align: center;
+            padding: 2em;
+            width: 100%;
+            max-width: 800px;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 2.8em;
+            color: #ffcc00;
+        }
+
+        .fade-in-text {
+            font-size: 1.3em;
+            color: #00ccff;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .get-started-button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            color: white;
+            background-color: #007bff; /* Blue color */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .login-button, .signup-button, .enroll-button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            color: white;
+            background-color: #28a745; /* Green color */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* Courses section */
+        #courses-section {
+            display: none;
+        }
+
+        .course-list {
+            width: 100%;
+            max-width: 700px;
+            padding: 20px;
+            background-color: rgba(173, 216, 230, 0.9)
+;
+            border-radius: 10px;
+            color: black;
+        }
+
+        .course {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .course h3 {
+            margin: 0;
+            color: #fff; /* Title color */
+        }
+
+        .course p {
+            color: #000000; /* Description color */
+        }
+
+        /* Course Details Styles */
+        .course-details {
+            display: none;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: rgba(104, 187, 124, 0.9);
+            color: black;
+            margin-top: 10px; /* Add some space above the details */
+        }
+
+        .course-image {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        /* Payment Form Styles */
+        .payment-form {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: rgba(255, 155, 255, 0.9);
+            border-radius: 10px;
+            width: 300px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            z-index: 1000; /* Ensure it is on top of other elements */
+        }
+
+        /* Modal styles for login/signup */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2em;
+            width: 90%;
+            max-width: 700px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-around;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <!-- User Info Section -->
+    {% if username %}
+        <div class="user-info" onclick="toggleDropdown()">
+            <span>Welcome, {{ username }}</span>
+            <div class="dropdown" id="profileDropdown">
+                <p><strong>Username:</strong> {{ username }}</p>
+                <p><strong>Email:</strong> {{ email if email else '' }}</p>
+                <a href="{{ url_for('logout') }}">
+                    <button class="logout-button">Logout</button>
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <header>
+        <h1>Codeub Complete(LMS)</h1>
+        <p class="fade-in-text">Empowering Education Through Seamless Learning Experiences</p>
+    </header>
+
+    <!-- Home Content Section -->
+    <main id="home-section">
+        <div class="content-description">
+            <p>Welcome to Codub Complete LMS!  An All-in-one Learning Management System ,Our platform offers a online Courses,Assessments,a seamless experience for educators and students to interact, share resources, and track progress.</p>
+        </div>
+
+        <!-- Show Get Started or View Courses Button Based on Login State -->
+        {% if username %}
+            <button class="get-started-button" onclick="showCourses()">View Courses</button>
+        {% else %}
+            <button class="get-started-button" onclick="openModal()">Get Started</button>
+        {% endif %}
+    </main>
+
+    <!-- Courses Section -->
+    <div id="courses-section" style="display: none;">
+        <div class="course-list">
+            <h2>Available Courses</h2>
+            <div class="course" style="background-color: rgba(150, 105, 155, 0.9);">
+                <h3>Course 1: Introduction to Python</h3>
+                <p>This course covers the basics of Python programming.</p>
+                <button class="get-started-button" onclick="toggleCourseDetails('course1', 'Introduction to Python', 'This course covers the basics of Python programming.', 'static/python_course.jpg')">View Details</button>
+                <button class="enroll-button" onclick="showPaymentForm()">Enroll</button>
+                <div class="course-details" id="course1-details">
+                    <img class="course-image" src="static/python_course.jpg" alt="Python Course Image">
+                    <p>In this course, you'll learn Python from scratch, including data types, control structures, functions, and more.</p>
+                </div>
+            </div>
+            <div class="course" style="background-color: rgba(200, 105, 105, 0.9);">
+                <h3>Course 2: Web Development with Flask</h3>
+                <p>Learn how to create web applications using Flask.</p>
+                <button class="get-started-button" onclick="toggleCourseDetails('course2', 'Web Development with Flask', 'Learn how to create web applications using Flask.', 'static/flask_course.jpg')">View Details</button>
+                <button class="enroll-button" onclick="showPaymentForm()">Enroll</button>
+                <div class="course-details" id="course2-details">
+                    <img class="course-image" src="static/flask_course.jpg" alt="Flask Course Image">
+                    <p>This course teaches you how to build web applications using the Flask framework, including routing, templates, and databases.</p>
+                </div>
+            </div>
+
+
+            <div class="course" style="background-color: rgba(100, 175, 185, 0.9);">
+    		<h3>Course 3: Data Science with R</h3>
+    		<p>Learn data manipulation, visualization, and statistical analysis with R.</p>
+    		<button class="get-started-button" onclick="toggleCourseDetails('course3', 'Data Science with R', 'Learn data manipulation, visualization, and statistical analysis with R.', 'static/r_course.jpg')">View Details</button>
+    		<button class="enroll-button" onclick="showPaymentForm()">Enroll</button>
+    		<div class="course-details" id="course3-details">
+        		<img class="course-image" src="static/r_course.jpg" alt="R Course Image">
+        		<p>This course covers data analysis techniques, including data visualization, statistical modeling, and report generation in R.</p>
+    		</div>
+	    </div>
+
+	    <div class="course" style="background-color: rgba(170, 215, 135, 0.9);">
+    		<h3>Course 4: Machine Learning Fundamentals</h3>
+    		<p>Explore the basics of machine learning, algorithms, and model building.</p>
+    		<button class="get-started-button" onclick="toggleCourseDetails('course4', 'Machine Learning Fundamentals', 'Explore the basics of machine learning, algorithms, and model building.', 'static/ml_course.jpg')">View Details</button>
+   		<button class="enroll-button" onclick="showPaymentForm()">Enroll</button>
+    		<div class="course-details" id="course4-details">
+        		<img class="course-image" src="static/ml_course.jpg" alt="ML Course Image">
+        		<p>Gain hands-on experience with supervised and unsupervised learning techniques, data preparation, and model evaluation.</p>
+    		</div>
+	    </div>
+
+	    <div class="course" style="background-color: rgba(100, 215, 175, 0.9);">
+    		<h3>Course 5: Advanced JavaScript and Frontend Development</h3>
+    		<p>Deep dive into advanced JavaScript concepts and frontend frameworks.</p>
+    		<button class="get-started-button" onclick="toggleCourseDetails('course5', 'Advanced JavaScript and Frontend Development', 'Deep dive into advanced JavaScript concepts and frontend frameworks.', 'static/js_course.jpg')">View Details</button>
+    		<button class="enroll-button" onclick="showPaymentForm()">Enroll</button>
+    		<div class="course-details" id="course5-details">
+        		<img class="course-image" src="static/js_course.jpg" alt="JavaScript Course Image">
+        		<p>Learn advanced JavaScript, responsive web design, and frontend frameworks like React and Vue.</p>
+    		</div>
+	    </div>
+             
+            <div class="course" style="background-color: rgba(10, 205, 175, 0.9);">
+    		<h3>Course 6: Computer Networks</h3>
+    		<p>Deep dive into the real world computer networks where we use.</p>
+    		<button class="get-started-button" onclick="toggleCourseDetails('course6', 'Computer Networks', 'Deep dive into the real world computer networks where we use.', 'static/CN_course.jpg')">View Details</button>
+    		<button class="enroll-button" onclick="showPaymentForm()">Enroll</button>
+    		<div class="course-details" id="course6-details">
+        		<img class="course-image" src="static/CN_course.jpg" alt="Computer Networks">
+        		<p>Computer networks enable communication and resource sharing betweeen inter connected devices.</p>
+    		</div>
+	    </div>
+
+            <div class="course" style="background-color: rgba(70, 205, 105, 0.9);">
+    		<h3>Course 7: Cyber security </h3>
+    		<p> Introduction into the security and how it applications are used.</p>
+    		<button class="get-started-button" onclick="toggleCourseDetails('course7', 'Cyber security', 'Introduction into the security and how it applications are used.', 'static/Cybersec_course.jpg')">View Details</button>
+    		<button class="enroll-button" onclick="showPaymentForm()">Enroll</button>
+    		<div class="course-details" id="course7-details">
+        		<img class="course-image" src="static/Cybersec_course.jpg" alt="Cyber security">
+        		<p>Cyber security is the practice of protecting systems, Networks and data from degital attacks .</p>
+    		</div>
+	    </div>
+  
+            <div class="course" style="background-color: rgba(100,60, 75, 0.9);">
+    		<h3>Course 8: Block chain </h3>
+    		<p> Introduction into the block chain.</p>
+    		<button class="get-started-button" onclick="toggleCourseDetails('course8', 'Block chain ', 'Introduction into the block chain.', 'static/blockchain_course.jpg')">View Details</button>
+    		<button class="enroll-button" onclick="showPaymentForm()">Enroll</button>
+    		<div class="course-details" id="course8-details">
+        		<img class="course-image" src="static/blockchain_course.jpg" alt="Block chain ">
+        		<p>Block chain is a decentralized digital ledger that securely records transaction acrouss multiple computers ensuring transpariency and previnting tampiring   .</p>
+    		</div>
+	    </div>
+
+           
+            
+           
+
+
+
+
+
+
+
+
+
+            <!-- Add more courses as needed -->
+        </div>
+    </div>
+
+    <!-- Payment Form -->
+    <div class="payment-form" id="paymentForm">
+        <h3>Payment Details</h3>
+        <label for="cardNumber">Card Number:</label>
+        <input type="text" id="cardNumber" placeholder="Enter your card number">
+        <label for="expiryDate">Expiry Date:</label>
+        <input type="text" id="expiryDate" placeholder="MM/YY">
+        <label for="cvv">CVV:</label>
+        <input type="text" id="cvv" placeholder="CVV">
+        <button class="enroll-button" onclick="confirmEnrollment()">Confirm Enrollment</button>
+        <button class="enroll-button" onclick="closePaymentForm()">Cancel</button>
+    </div>
+
+    <!-- Login/Signup Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div>
+                <h2>Login</h2>
+                <form id="loginForm" action="/login" method="POST">
+                    <label for="loginEmail">Email:</label>
+                    <input type="email" id="loginEmail" name="email" required>
+                    <label for="loginPassword">Password:</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                    <button type="submit" class="login-button">Login</button>
+                </form>
+                <p>Don't have an account? <a href="#" onclick="toggleForms()">Sign Up</a></p>
+            </div>
+            <div style="display: none;" id="signupFormDiv">
+                <h2>Sign Up</h2>
+                <form id="signupForm" action="/signup" method="POST">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                    <label for="signupEmail">Email:</label>
+                    <input type="email" id="signupEmail" name="email" required>
+                    <label for="phoneNumber">Phone Number:</label>
+                    <input type="text" id="phoneNumber" name="phone" required>
+                    <label for="signupPassword">Create Password:</label>
+                    <input type="password" id="signupPassword" name="password" required>
+                    <label for="confirmPassword">Confirm Password:</label>
+                    <input type="password" id="confirmPassword" name="confirm_password" required>
+                    <button type="submit" class="login-button">Sign Up</button>
+                </form>
+                <p>Already have an account? <a href="#" onclick="toggleForms()">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboard" style="padding: 2em; width: 100%; max-width: 800px; background-color: rgba(200, 200, 255, 0.9); border-radius: 10px; margin-top: 20px;">
+        <h2>Dashboard</h2>
+        <div class="dashboard-statistics" style="display: flex; justify-content: space-around; flex-wrap: wrap; margin-top: 20px;">
+            <div class="statistic" style="flex: 1; margin: 10px; padding: 20px; background-color: #FF5733;; color: white; border-radius: 5px;">
+                <h3>Total Students</h3>
+                <p>1500</p>
+            </div>
+            <div class="statistic" style="flex: 1; margin: 10px; padding: 20px; background-color: #28a745; color: white; border-radius: 5px;">
+                <h3>Total Courses</h3>
+                <p>20</p>
+            </div>
+            <div class="statistic" style="flex: 1; margin: 10px; padding: 20px; background-color: #ffc107; color: white; border-radius: 5px;">
+                <h3>Active Instructors</h3>
+                <p>30</p>
+            </div>
+        </div>
+
+        <div class="charts" style="margin-top: 30px;">
+            <h3>Course Enrollment Statistics</h3>
+            <canvas id="enrollmentChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Toggle dropdown for user profile
+        function toggleDropdown() {
+            const dropdown = document.getElementById("profileDropdown");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        }
+
+        // Open modal for login/signup
+        function openModal() {
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        // Close modal
+        window.onclick = function(event) {
+            const modal = document.getElementById("modal");
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Toggle between login and signup forms
+        function toggleForms() {
+            const loginForm = document.getElementById("loginForm");
+            const signupFormDiv = document.getElementById("signupFormDiv");
+            loginForm.parentNode.style.display = loginForm.parentNode.style.display === "none" ? "block" : "none";
+            signupFormDiv.style.display = signupFormDiv.style.display === "none" ? "block" : "none";
+        }
+
+        // Show courses section and hide the dashboard
+        function showCourses() {
+            document.getElementById("home-section").style.display = "none"; // Hide home section
+            document.getElementById("dashboard").style.display = "none"; // Hide dashboard
+            document.getElementById("courses-section").style.display = "block"; // Show courses section
+        }
+
+        // Toggle course details
+        function toggleCourseDetails(courseId, title, description, image) {
+            const details = document.getElementById(courseId + '-details');
+            details.style.display = details.style.display === "block" ? "none" : "block";
+            details.querySelector('img').src = image; // Update image source
+        }
+
+        // Show payment form
+        function showPaymentForm() {
+            document.getElementById("paymentForm").style.display = "block";
+        }
+
+        // Close payment form
+        function closePaymentForm() {
+            document.getElementById("paymentForm").style.display = "none";
+        }
+
+        // Confirm enrollment (placeholder)
+        function confirmEnrollment() {
+            alert("Enrollment confirmed!"); // Replace with actual logic
+            closePaymentForm();
+        }
+
+        // Chart.js code for displaying enrollment statistics
+        const ctx = document.getElementById('enrollmentChart').getContext('2d');
+        const enrollmentChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Python', 'Flask', 'R', 'JavaScript', 'Machine Learning', 'AI'],
+                datasets: [{
+                    label: 'Enrollments',
+                    data: [120, 90, 80, 70, 110, 60], // Sample enrollment data
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+ 
+<div
+
+
+
+<h3 >The Evolution of Learning: Unlocking the Potential of LMS Portals</h3>
+<p style="color:weight">
+    The advent of technology has revolutionized the way we learn, making education more accessible, flexible, and engaging. Learning Management System (LMS) portals have emerged as a pivotal tool in this transformation, empowering educators, learners, and organizations to manage and facilitate knowledge sharing. In this essay, we will delve into the concept of LMS portals, their features, benefits, and the comprehensive services we provide to foster a dynamic learning environment.
+</p>
+    		
+    
+<h3>What is an LMS Portal?</h3>	
+<p style="color:weight">	An LMS portal is a web-based platform designed to plan, implement, and assess learning processes. It serves as a centralized hub for educators to create, distribute, and track educational content, while learners can access courses, interact with instructors, and monitor their progress. LMS portals cater to various learning needs, from academic institutions to corporate training programs.
+
+</p>
+
+<h3>Key Features of Our LMS Portal
+</h3>
+<p style="color:weight"> Our LMS portal offers an array of features to enhance the learning experience:
+
+1. Course Management: Create, edit, and organize courses with ease, including syllabi, materials, and assignments.
+2. User Management: Manage user roles, enrollments, and access permissions.
+3. Content Delivery: Upload multimedia content, including videos, images, and documents.
+4. Assessments and Quizzes: Create and grade quizzes, exams, and assignments.
+5. Progress Tracking: Monitor learner progress, engagement, and performance.
+6. Communication Tools: Facilitate discussions, messaging, and notifications.
+7. Customization Options: Personalize the portal with branding, themes, and layouts.
+8. Integration: Seamlessly integrate with third-party tools and services.
+
+</p>
+
+<h3>Services We Provide
+
+</h3>
+<p style="color:weight"> To ensure a seamless LMS experience, we offer the following services:
+
+1. Implementation and Configuration: Expert setup and customization.
+2. Content Development: Create engaging, interactive content.
+3. Training and Support: Ongoing assistance for administrators and instructors.
+4. Technical Maintenance: Regular updates, backups, and security patches.
+5. Analytics and Reporting: Detailed insights into learner engagement and performance.
+6. Custom Development: Tailored solutions to meet specific needs.
+
+</p>
+
+<h3>Benefits of Our LMS Portal
+
+</h3>
+<p style="color:weight"> Our LMS portal offers numerous benefits to educators, learners, and organizations:
+
+1. Increased Accessibility: Reach a broader audience, anytime, anywhere.
+2. Enhanced Engagement: Interactive content and discussions foster learner participation.
+3. Improved Efficiency: Streamline administrative tasks and focus on teaching.
+4. Personalized Learning: Adapt to individual learning styles and needs.
+5. Scalability: Easily accommodate growing user bases.
+6. Cost-Effectiveness: Reduce infrastructure and resource costs</p>
+
+<h3>Conclusion
+</h3>
+<p style="color:weight"> Our LMS portal is a comprehensive solution for modern learning needs, providing a flexible, engaging, and accessible environment for educators and learners. By leveraging our expertise and services, organizations can unlock the full potential of their learning programs, driving success and growth in an ever-evolving landscape.
+</p>
+
+<h3>Future Directions
+
+</h3>
+<p style="color:weight">As technology continues to advance, our LMS portal will evolve to incorporate emerging trends, such as:
+
+1. Artificial Intelligence (AI) powered adaptive learning.
+2. Virtual and Augmented Reality (VR/AR) integrations.
+3. Mobile optimization and responsive design.
+4. Enhanced analytics and machine learning capabilities.
+
+By embracing innovation and customer feedback, we will continue to shape the future of learning, empowering individuals and organizations to thrive in an increasingly complex world. </p>
+
+</div>    		
+        		
+    		
+	    
+
+
+
+</body>
+</html>
+
